@@ -1,26 +1,60 @@
 import React from 'react';
-import logo from './logo.svg';
-import './App.css';
 
-function App() {
+import { ThemeProvider } from "styled-components";
+import {lightTheme, darkTheme} from './utils/theme';
+import { connect } from 'react-redux';
+
+
+import "slick-carousel/slick/slick.css"; 
+import "slick-carousel/slick/slick-theme.css";
+
+import {
+  BrowserRouter,
+  Routes,
+  Route,
+} from "react-router-dom";
+
+
+import ErrorHandler from 'services/errorHandler';
+import GlobalStyle from './utils/globalStyle';
+import Header from './components/Header';
+import Footer from './components/Footer';
+import routes from 'utils/routes';
+// import Cursor from './components/Cursor';
+import CursorContextProvider from 'state/CursorContextProvider';
+
+function App({ theme }: { theme: string }) {
+
+  const routeComponents = routes.map((route, index) => (
+    <Route
+      key={index}
+      path={route.path}
+      element={<route.component />}
+    />
+  ));
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <ThemeProvider theme={theme === 'light' ? lightTheme : darkTheme }>
+      <CursorContextProvider>
+        {/* <Cursor /> */}
+        <ErrorHandler />
+        <GlobalStyle />
+        <BrowserRouter>
+          <Header />
+          <Routes>
+            {routeComponents}
+          </Routes>
+          <Footer />
+        </BrowserRouter>
+      </CursorContextProvider>
+    </ThemeProvider>
   );
 }
 
-export default App;
+const mapStateToProps = (state: any) => {
+  return {
+    theme: state.theme.theme,
+  }
+}
+
+export default connect(mapStateToProps, {})(App);
